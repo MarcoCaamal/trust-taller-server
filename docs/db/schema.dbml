@@ -1,0 +1,342 @@
+// MotoTaller / TrustTaller - Modelo de datos MVP alineado al PRD v0.3
+// Enums usan nombres en inglés (constantes) y puedes mapearlos a etiquetas ES en UI.
+//
+// Importable en diagrams.net (diagram.io) si tienes habilitado import DBML/dbdiagram.
+
+Enum work_order_status {
+  RECEIVED   // Recibido
+  IN_REVIEW  // En revisión
+  IN_REPAIR  // En reparación
+  READY      // Listo
+  DELIVERED  // Entregado
+  CANCELED   // Cancelado
+}
+
+Enum concept_type {
+  SERVICE         // Servicio
+  SHOP_SUPPLY     // Insumo vendido/proporcionado por taller
+  CUSTOMER_SUPPLY // Insumo aportado por cliente (puede ser $0)
+}
+
+Enum evidence_kind {
+  PHOTO // MVP: solo fotos (puedes extender a VIDEO, PDF, etc.)
+}
+
+Table tenants {
+  id bigint [pk, increment]
+  name varchar(120) [not null]
+  slug varchar(80) [not null, unique] // opcional, útil para URLs internas
+  is_active boolean [not null, default: true]
+
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Indexes {
+    (name)
+  }
+}
+
+Table users {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  email varchar(190) [not null]
+  password_hash varchar(255) [not null]
+  full_name varchar(160) [not null]
+  is_active boolean [not null, default: true]
+
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Indexes {
+    (tenant_id, email) [unique, name: "ux_users_tenant_email"]
+    (tenant_id) [name: "ix_users_tenant"]
+  }
+}
+
+Table roles {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  name varchar(80) [not null]
+  is_system boolean [not null, default: false] // roles seed/por defecto
+  description varchar(255)
+
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Indexes {
+    (tenant_id, name) [unique, name: "ux_roles_tenant_name"]
+    (tenant_id) [name: "ix_roles_tenant"]
+  }
+}
+
+Table permissions {
+  id bigint [pk, increment]
+  code varchar(120) [not null, unique] // ej: orders.update_status
+  description varchar(255)
+
+  created_at datetime [not null]
+
+  Indexes {
+    (code) [unique, name: "ux_permissions_code"]
+  }
+}
+
+Table user_roles {
+  user_id bigint [not null]
+  role_id bigint [not null]
+  created_at datetime [not null]
+
+  Indexes {
+    (user_id, role_id) [pk, name: "pk_user_roles"]
+    (role_id) [name: "ix_user_roles_role"]
+  }
+}
+
+Table role_permissions {
+  role_id bigint [not null]
+  permission_id bigint [not null]
+  created_at datetime [not null]
+
+  Indexes {
+    (role_id, permission_id) [pk, name: "pk_role_permissions"]
+    (permission_id) [name: "ix_role_permissions_permission"]
+  }
+}
+
+Table customers {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  full_name varchar(160) [not null]
+  phone varchar(40) [not null]
+  email varchar(190)
+  notes text
+
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Indexes {
+    (tenant_id, phone) [unique, name: "ux_customers_tenant_phone"]
+    (tenant_id) [name: "ix_customers_tenant"]
+  }
+}
+
+Table vehicles {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  customer_id bigint [not null]
+  make varchar(80) // marca
+  model varchar(80)
+  year int
+  plate varchar(40) // placas
+  vin varchar(40)
+  color varchar(40)
+  notes text
+
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Indexes {
+    (tenant_id, customer_id) [name: "ix_vehicles_tenant_customer"]
+    (tenant_id, plate) [name: "ix_vehicles_tenant_plate"] // no unique por si hay casos raros
+  }
+}
+
+Table work_orders {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  customer_id bigint [not null]
+  vehicle_id bigint
+  folio varchar(40) // opcional: consecutivo visible
+  status work_order_status [not null, default: 'RECEIVED']
+
+  problem_description text
+  internal_notes text
+
+  delivered_at datetime
+  canceled_at datetime
+  cancel_reason text
+
+  created_by_user_id bigint
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Indexes {
+    (tenant_id, status) [name: "ix_work_orders_tenant_status"]
+    (tenant_id, created_at) [name: "ix_work_orders_tenant_created_at"]
+    (tenant_id, folio) [name: "ix_work_orders_tenant_folio"]
+  }
+}
+
+Table work_order_status_history {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  work_order_id bigint [not null]
+
+  from_status work_order_status
+  to_status work_order_status [not null]
+
+  note text
+  created_by_user_id bigint
+  created_at datetime [not null]
+
+  Indexes {
+    (work_order_id, created_at) [name: "ix_wosh_order_created_at"]
+    (tenant_id, created_at) [name: "ix_wosh_tenant_created_at"]
+  }
+}
+
+// Catálogo solo para autocompletar (NO stock)
+Table supply_catalog_items {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+
+  name varchar(160) [not null]
+  unit varchar(40) // ej: pza, lt, kg
+  suggested_price decimal(12,2) // precio sugerido para autocompletar
+  sku varchar(80)
+  is_active boolean [not null, default: true]
+
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Indexes {
+    (tenant_id, name) [name: "ix_supplies_tenant_name"]
+    (tenant_id, is_active) [name: "ix_supplies_tenant_active"]
+  }
+}
+
+// Conceptos = snapshot (no depende del catálogo para cálculos)
+Table work_order_concepts {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  work_order_id bigint [not null]
+
+  type concept_type [not null]
+  name varchar(160) [not null]
+  description varchar(255)
+  unit varchar(40)
+  quantity decimal(12,3) [not null, default: 1]
+  unit_price decimal(12,2) [not null, default: 0]
+
+  // tracking de autocompletar (informativo)
+  source_supply_catalog_item_id bigint
+  was_autocompleted boolean [not null, default: false]
+  was_edited boolean [not null, default: false]
+
+  created_by_user_id bigint
+  created_at datetime [not null]
+  updated_at datetime [not null]
+
+  Indexes {
+    (work_order_id) [name: "ix_concepts_order"]
+    (tenant_id, work_order_id) [name: "ix_concepts_tenant_order"]
+  }
+}
+
+Table work_order_evidences {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  work_order_id bigint [not null]
+
+  kind evidence_kind [not null, default: 'PHOTO']
+  // storage
+  storage_provider varchar(30) [not null, default: 's3'] // s3/spaces/etc
+  storage_key varchar(512) [not null] // ruta/llave en bucket
+  public_url varchar(1024) // si usas CDN, opcional
+
+  mime varchar(100) [not null]
+  size_bytes bigint [not null]
+  width int
+  height int
+
+  created_by_user_id bigint
+  created_at datetime [not null]
+
+  Indexes {
+    (work_order_id, created_at) [name: "ix_evidence_order_created_at"]
+    (tenant_id, created_at) [name: "ix_evidence_tenant_created_at"]
+  }
+}
+
+// Link público por token (regenerable, revocable)
+// Nota: asegurar por lógica que solo haya 1 token activo por work_order_id.
+Table work_order_public_tokens {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  work_order_id bigint [not null]
+
+  token varchar(120) [not null, unique] // aleatorio, no predecible
+  is_active boolean [not null, default: true]
+  expires_at datetime [not null] // delivered_at/canceled_at + 30d (y NO cambia al regenerar)
+  revoked_at datetime
+
+  created_by_user_id bigint
+  created_at datetime [not null]
+
+  Indexes {
+    (work_order_id, is_active) [name: "ix_public_tokens_order_active"]
+    (tenant_id, expires_at) [name: "ix_public_tokens_tenant_expires_at"]
+  }
+}
+
+// Opcional (KPI): log de accesos al link público
+Table public_link_access_logs {
+  id bigint [pk, increment]
+  tenant_id bigint [not null]
+  work_order_public_token_id bigint [not null]
+
+  ip varchar(64)
+  user_agent varchar(255)
+  referer varchar(255)
+
+  accessed_at datetime [not null]
+
+  Indexes {
+    (work_order_public_token_id, accessed_at) [name: "ix_public_access_token_time"]
+    (tenant_id, accessed_at) [name: "ix_public_access_tenant_time"]
+  }
+}
+
+/* =======================
+   Relaciones (Refs)
+   ======================= */
+
+Ref: users.tenant_id > tenants.id
+Ref: roles.tenant_id > tenants.id
+
+Ref: user_roles.user_id > users.id
+Ref: user_roles.role_id > roles.id
+
+Ref: role_permissions.role_id > roles.id
+Ref: role_permissions.permission_id > permissions.id
+
+Ref: customers.tenant_id > tenants.id
+Ref: vehicles.tenant_id > tenants.id
+Ref: vehicles.customer_id > customers.id
+
+Ref: work_orders.tenant_id > tenants.id
+Ref: work_orders.customer_id > customers.id
+Ref: work_orders.vehicle_id > vehicles.id
+Ref: work_orders.created_by_user_id > users.id
+
+Ref: work_order_status_history.tenant_id > tenants.id
+Ref: work_order_status_history.work_order_id > work_orders.id
+Ref: work_order_status_history.created_by_user_id > users.id
+
+Ref: supply_catalog_items.tenant_id > tenants.id
+
+Ref: work_order_concepts.tenant_id > tenants.id
+Ref: work_order_concepts.work_order_id > work_orders.id
+Ref: work_order_concepts.source_supply_catalog_item_id > supply_catalog_items.id
+Ref: work_order_concepts.created_by_user_id > users.id
+
+Ref: work_order_evidences.tenant_id > tenants.id
+Ref: work_order_evidences.work_order_id > work_orders.id
+Ref: work_order_evidences.created_by_user_id > users.id
+
+Ref: work_order_public_tokens.tenant_id > tenants.id
+Ref: work_order_public_tokens.work_order_id > work_orders.id
+Ref: work_order_public_tokens.created_by_user_id > users.id
+
+Ref: public_link_access_logs.tenant_id > tenants.id
+Ref: public_link_access_logs.work_order_public_token_id > work_order_public_tokens.id
