@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import authRoutes from '@modules/auth/auth.routes';
+import { errorHandler } from '@core/middlewares/error.middleware';
 
 const app = express();
 
@@ -7,34 +9,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// In-memory data store
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-let users: User[] = [];
-let nextId = 1;
-
 // Routes
+app.use('/api/auth', authRoutes);
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Trust Taller API');
+app.use('/health', (req, res) => {
+  res.status(200).send('OK');
 });
 
-app.get('/api/users', (req, res) => {
-  res.json(users);
-});
-
-app.post('/api/users', (req, res) => {
-  const { name, email } = req.body;
-  if (!name || !email) {
-    return res.status(400).json({ error: 'Name and email are required' });
-  }
-  const newUser: User = { id: nextId++, name, email };
-  users.push(newUser);
-  res.status(201).json(newUser);
-});
+// Error Handling Middleware
+app.use(errorHandler);
 
 export default app;

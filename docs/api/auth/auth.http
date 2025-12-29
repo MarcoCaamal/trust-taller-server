@@ -1,0 +1,126 @@
+### Variables
+@baseUrl = http://localhost:3001
+@apiUrl = {{baseUrl}}/api
+
+### Register Workshop - Success
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Taller Mi Mecánico",
+  "slug": "mi-mecanico",
+  "user": {
+    "email": "admin@example.com",
+    "name": "Juan",
+    "lastName": "Pérez",
+    "password": "password123"
+  }
+}
+
+### Register Workshop - Another Workshop
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "AutoService Pro",
+  "slug": "autoservice-pro",
+  "user": {
+    "email": "owner@autoservice.com",
+    "name": "María",
+    "lastName": "González",
+    "password": "securepass456"
+  }
+}
+
+### Register Workshop - Duplicate Slug (should fail)
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Otro Taller",
+  "slug": "mi-mecanico",
+  "user": {
+    "email": "otro@example.com",
+    "name": "Pedro",
+    "lastName": "Martínez",
+    "password": "password789"
+  }
+}
+
+### Register Workshop - Duplicate Email in same tenant (should fail)
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Taller Nuevo",
+  "slug": "taller-nuevo",
+  "user": {
+    "email": "admin@example.com",
+    "name": "Carlos",
+    "lastName": "López",
+    "password": "password999"
+  }
+}
+
+### Register Workshop - Validation Error: Invalid email
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Taller Test",
+  "slug": "taller-test",
+  "user": {
+    "email": "invalid-email",
+    "name": "Test",
+    "lastName": "User",
+    "password": "password123"
+  }
+}
+
+### Register Workshop - Validation Error: Short password
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Taller Test",
+  "slug": "taller-test",
+  "user": {
+    "email": "test@example.com",
+    "name": "Test",
+    "lastName": "User",
+    "password": "12345"
+  }
+}
+
+### Register Workshop - Validation Error: Invalid slug format
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Taller Test",
+  "slug": "Taller Test!",
+  "user": {
+    "email": "test@example.com",
+    "name": "Test",
+    "lastName": "User",
+    "password": "password123"
+  }
+}
+
+### Register Workshop - Validation Error: Missing fields
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Taller Test",
+  "slug": "taller-test"
+}
+
+### Login (Not implemented yet)
+POST {{apiUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "password123"
+}
