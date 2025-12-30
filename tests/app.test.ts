@@ -18,7 +18,7 @@ describe('Problem Details errors', () => {
 
     expect(response.status).toBe(400);
     expect(response.headers['content-type']).toContain('application/problem+json');
-    expect(response.body.type).toBe('https://trust-taller.dev/problems/validation-error');
+    expect(response.body.type).toBe('https://docs.trust-taller.com/errors/validation-error');
     expect(response.body.status).toBe(400);
     expect(Array.isArray(response.body.errors)).toBe(true);
   });

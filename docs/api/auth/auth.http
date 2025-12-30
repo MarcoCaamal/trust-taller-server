@@ -9,6 +9,7 @@ Content-Type: application/json
 {
   "name": "Taller Mi Mecánico",
   "slug": "mi-mecanico",
+  "email": "contacto@mi-mecanico.com",
   "user": {
     "email": "admin@example.com",
     "name": "Juan",
@@ -24,6 +25,7 @@ Content-Type: application/json
 {
   "name": "AutoService Pro",
   "slug": "autoservice-pro",
+  "email": "contacto@autoservice.com",
   "user": {
     "email": "owner@autoservice.com",
     "name": "María",
@@ -39,6 +41,7 @@ Content-Type: application/json
 {
   "name": "Otro Taller",
   "slug": "mi-mecanico",
+  "email": "otro@taller.com",
   "user": {
     "email": "otro@example.com",
     "name": "Pedro",
@@ -54,6 +57,7 @@ Content-Type: application/json
 {
   "name": "Taller Nuevo",
   "slug": "taller-nuevo",
+  "email": "contacto@mi-mecanico.com",
   "user": {
     "email": "admin@example.com",
     "name": "Carlos",
@@ -69,6 +73,7 @@ Content-Type: application/json
 {
   "name": "Taller Test",
   "slug": "taller-test",
+  "email": "contacto@taller-test.com",
   "user": {
     "email": "invalid-email",
     "name": "Test",
@@ -84,6 +89,7 @@ Content-Type: application/json
 {
   "name": "Taller Test",
   "slug": "taller-test",
+  "email": "contacto@taller-test.com",
   "user": {
     "email": "test@example.com",
     "name": "Test",
@@ -99,6 +105,7 @@ Content-Type: application/json
 {
   "name": "Taller Test",
   "slug": "Taller Test!",
+  "email": "contacto@taller-test.com",
   "user": {
     "email": "test@example.com",
     "name": "Test",
@@ -113,7 +120,8 @@ Content-Type: application/json
 
 {
   "name": "Taller Test",
-  "slug": "taller-test"
+  "slug": "taller-test",
+  "email": "contacto@taller-test.com"
 }
 
 ### Problem Details - Validation Error (example response)
@@ -134,9 +142,9 @@ Content-Type: application/json
 ### Login
 POST {{apiUrl}}/auth/login
 Content-Type: application/json
+X-Forwarded-Host: mi-mecanico.trust-taller.local
 
 {
-  "tenantSlug": "mi-mecanico",
   "email": "admin@example.com",
   "password": "password123"
 }
@@ -146,7 +154,7 @@ Content-Type: application/json
 # Content-Type: application/problem+json
 #
 # {
-#   "type": "https://trust-taller.dev/problems/unauthorized",
+#   "type": "https://docs.trust-taller.com/errors/unauthorized",
 #   "title": "Unauthorized",
 #   "status": 401,
 #   "detail": "Invalid credentials",

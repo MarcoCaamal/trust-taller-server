@@ -3,6 +3,7 @@ import { z } from 'zod';
 const RegisterWorkshopSchema = z.strictObject({
   name: z.string().min(3, 'The name must be at least 3 characters long'),
   slug: z.string().min(3, 'The slug must be at least 3 characters long').regex(/^[a-z0-9-]+$/, 'The slug can only contain lowercase letters, numbers, and hyphens'),
+  email: z.email('Invalid tenant email address'),
 
   user: z.strictObject({
     email: z.email('Invalid email address'),

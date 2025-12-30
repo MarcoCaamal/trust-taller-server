@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { HttpException } from '@core/exceptions/http.exception';
 import { ZodError } from 'zod';
 import { createProblemDetails, titleFromStatus } from '@core/http/problem-details';
+import config from '@core/config/app.config';
 
 export const errorHandler = (
   err: Error,
@@ -15,7 +16,7 @@ export const errorHandler = (
       status: 400,
       title: titleFromStatus(400),
       detail: 'Validation error',
-      type: 'https://trust-taller.dev/problems/validation-error',
+      type: `${config.problemDocsBaseUrl.replace(/\/$/, '')}/validation-error`,
       instance: req.originalUrl,
       extensions: {
         errors: err.issues.map((issue) => ({

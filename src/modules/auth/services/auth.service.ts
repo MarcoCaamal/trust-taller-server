@@ -41,9 +41,27 @@ export class AuthService implements AuthServiceInterface {
           });
         }
 
+        const existingTenantByDomain = await tenantRepository.findByDomain(input.domain);
+        if (existingTenantByDomain) {
+          throw new AppErrorException({
+            code: "TENANT_DOMAIN_TAKEN",
+            message: "The workshop domain is already taken",
+          });
+        }
+
+        const existingTenantByEmail = await tenantRepository.findByEmail(input.email);
+        if (existingTenantByEmail) {
+          throw new AppErrorException({
+            code: "TENANT_EMAIL_TAKEN",
+            message: "The workshop email is already registered",
+          });
+        }
+
         const tenant = await tenantRepository.create({
           name: input.name,
           slug: input.slug,
+          email: input.email,
+          domain: input.domain,
           isActive: true,
         });
 
@@ -74,8 +92,12 @@ export class AuthService implements AuthServiceInterface {
 
         const { passwordHash: _, ...userWithoutPassword } = user;
 
+        const updatedTenant = await tenantRepository.update(tenant.id, {
+          ownerUserId: user.id,
+        });
+
         return ok({
-          tenant,
+          tenant: updatedTenant ?? tenant,
           user: userWithoutPassword,
           token,
         });
@@ -97,10 +119,22 @@ export class AuthService implements AuthServiceInterface {
             message: "The workshop slug is already taken",
           });
         }
-        if (target.includes("tenantId_email") || target.includes("email")) {
+        if (target.includes("domain")) {
+          return err({
+            code: "TENANT_DOMAIN_TAKEN",
+            message: "The workshop domain is already taken",
+          });
+        }
+        if (target.includes("tenantId_email")) {
+          return err({
+            code: "USER_EMAIL_TAKEN",
+            message: "The email is already registered in this workshop",
+          });
+        }
+        if (target.includes("email")) {
           return err({
             code: "TENANT_EMAIL_TAKEN",
-            message: "The email is already registered in this workshop",
+            message: "The workshop email is already registered",
           });
         }
 
@@ -117,7 +151,7 @@ export class AuthService implements AuthServiceInterface {
     const userRepository = this.userRepositoryFactory();
     const tenantRepository = this.tenantRepositoryFactory();
 
-    const tenant = await tenantRepository.findBySlug(input.tenantSlug);
+    const tenant = await tenantRepository.findByDomain(input.domain);
     if (!tenant) {
       return err({
         code: "UNAUTHORIZED",

@@ -5,6 +5,8 @@ import { AppError, Result } from "@core/types";
 export interface RegisterWorkshopInput {
   name: string;
   slug: string;
+  email: string;
+  domain: string;
   user: {
     email: string;
     name: string;
@@ -20,7 +22,7 @@ export interface RegisterWorkshopOutput {
 }
 
 export interface LoginInput {
-  tenantSlug: string;
+  domain: string;
   email: string;
   password: string;
 }

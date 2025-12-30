@@ -36,10 +36,14 @@ model Tenant {
   id        Int      @id @default(autoincrement())
   name      String
   slug      String   @unique
+  email     String   @unique
+  domain    String   @unique
+  ownerUserId Int?   @unique
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  ownerUser User? @relation("TenantOwner", fields: [ownerUserId], references: [id])
   users User[]
   roles Role[]
   customers Customer[]
@@ -65,6 +69,7 @@ model User {
   updatedAt    DateTime @updatedAt
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
+  ownedTenant Tenant? @relation("TenantOwner")
 
   userRoles UserRole[]
   workOrders WorkOrder[]

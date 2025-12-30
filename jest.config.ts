@@ -25,6 +25,8 @@ const config: Config = {
     ],
   },
 
+  setupFiles: ['<rootDir>/tests/setup-env.ts'],
+
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
 };
 

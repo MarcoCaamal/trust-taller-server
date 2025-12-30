@@ -22,6 +22,18 @@ export class PrismaTenantRepository implements TenantRepositoryInterface {
     });
   }
 
+  async findByDomain(domain: string): Promise<Tenant | null> {
+    return this.prisma.tenant.findUnique({
+      where: { domain },
+    });
+  }
+
+  async findByEmail(email: string): Promise<Tenant | null> {
+    return this.prisma.tenant.findUnique({
+      where: { email },
+    });
+  }
+
   async create(tenant: Partial<Tenant>): Promise<Tenant> {
     return this.prisma.tenant.create({
       data: tenant as any,

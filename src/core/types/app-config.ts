@@ -3,4 +3,6 @@ export interface AppConfig {
   nodeEnv: string;
   databaseUrl: string;
   jwtSecret: string;
+  baseDomain: string;
+  problemDocsBaseUrl: string;
 }

@@ -1,4 +1,5 @@
 import { AppError } from "@core/types/app-error";
+import config from "@core/config/app.config";
 
 export type ProblemDetails = {
   type: string;
@@ -9,7 +10,7 @@ export type ProblemDetails = {
   [key: string]: unknown;
 };
 
-const PROBLEM_BASE = "https://trust-taller.dev/problems";
+const PROBLEM_BASE = config.problemDocsBaseUrl.replace(/\/$/, "");
 
 const statusTitleMap: Record<number, string> = {
   400: "Bad Request",
@@ -52,7 +53,9 @@ export const problemDetailsFromAppError = (
 ): ProblemDetails => {
   const mapping: Record<AppError["code"], { status: number; type: string }> = {
     TENANT_SLUG_TAKEN: { status: 409, type: `${PROBLEM_BASE}/tenant-slug-taken` },
+    TENANT_DOMAIN_TAKEN: { status: 409, type: `${PROBLEM_BASE}/tenant-domain-taken` },
     TENANT_EMAIL_TAKEN: { status: 409, type: `${PROBLEM_BASE}/tenant-email-taken` },
+    USER_EMAIL_TAKEN: { status: 409, type: `${PROBLEM_BASE}/user-email-taken` },
     VALIDATION_ERROR: { status: 400, type: `${PROBLEM_BASE}/validation-error` },
     UNAUTHORIZED: { status: 401, type: `${PROBLEM_BASE}/unauthorized` },
     FORBIDDEN: { status: 403, type: `${PROBLEM_BASE}/forbidden` },

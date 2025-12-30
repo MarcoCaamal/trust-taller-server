@@ -7,7 +7,7 @@ El media type es `application/problem+json`.
 
 ```json
 {
-  "type": "https://trust-taller.dev/problems/validation-error",
+  "type": "https://docs.trust-taller.com/errors/validation-error",
   "title": "Bad Request",
   "status": 400,
   "detail": "Validation error",
@@ -29,7 +29,7 @@ Se incluyen extensiones cuando aplica. Ejemplo en errores de validacion:
 
 ```json
 {
-  "type": "https://trust-taller.dev/problems/validation-error",
+  "type": "https://docs.trust-taller.com/errors/validation-error",
   "title": "Bad Request",
   "status": 400,
   "detail": "Validation error",
