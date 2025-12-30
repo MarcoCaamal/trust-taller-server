@@ -6,7 +6,7 @@ date: "2025-12-26"
 author: "Marco C."
 ---
 
-# PRD - Trust Taller (MVP)
+# PRD - Trust Taller (SaaS)
 
 ## 1. Resumen del producto
 
