@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { HttpException } from '@core/exceptions/http.exception';
 import { ZodError } from 'zod';
+import { createProblemDetails, titleFromStatus } from '@core/http/problem-details';
 
 export const errorHandler = (
   err: Error,
@@ -10,28 +11,40 @@ export const errorHandler = (
 ) => {
   // Zod validation errors
   if (err instanceof ZodError) {
-    return res.status(400).json({
-      success: false,
-      error: 'Validation error',
-      details: err.issues.map((issue) => ({
-        path: issue.path.join('.'),
-        message: issue.message,
-      })),
+    const problem = createProblemDetails({
+      status: 400,
+      title: titleFromStatus(400),
+      detail: 'Validation error',
+      type: 'https://trust-taller.dev/problems/validation-error',
+      instance: req.originalUrl,
+      extensions: {
+        errors: err.issues.map((issue) => ({
+          path: issue.path.join('.'),
+          message: issue.message,
+        })),
+      },
     });
+    return res.status(problem.status).type('application/problem+json').json(problem);
   }
 
   // Custom HTTP exceptions
   if (err instanceof HttpException) {
-    return res.status(err.statusCode).json({
-      success: false,
-      error: err.message,
+    const problem = createProblemDetails({
+      status: err.statusCode,
+      title: titleFromStatus(err.statusCode),
+      detail: err.message,
+      instance: req.originalUrl,
     });
+    return res.status(problem.status).type('application/problem+json').json(problem);
   }
 
   // Generic errors
   console.error('Unhandled error:', err);
-  return res.status(500).json({
-    success: false,
-    error: err.message || 'Internal server error',
+  const problem = createProblemDetails({
+    status: 500,
+    title: titleFromStatus(500),
+    detail: err.message || 'Internal server error',
+    instance: req.originalUrl,
   });
+  return res.status(problem.status).type('application/problem+json').json(problem);
 };

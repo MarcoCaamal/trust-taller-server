@@ -116,11 +116,39 @@ Content-Type: application/json
   "slug": "taller-test"
 }
 
-### Login (Not implemented yet)
+### Problem Details - Validation Error (example response)
+# HTTP/1.1 400 Bad Request
+# Content-Type: application/problem+json
+#
+# {
+#   "type": "https://trust-taller.dev/problems/validation-error",
+#   "title": "Bad Request",
+#   "status": 400,
+#   "detail": "Validation error",
+#   "instance": "/api/auth/register",
+#   "errors": [
+#     { "path": "user", "message": "Required" }
+#   ]
+# }
+
+### Login
 POST {{apiUrl}}/auth/login
 Content-Type: application/json
 
 {
+  "tenantSlug": "mi-mecanico",
   "email": "admin@example.com",
   "password": "password123"
 }
+
+### Problem Details - Invalid credentials (example response)
+# HTTP/1.1 401 Unauthorized
+# Content-Type: application/problem+json
+#
+# {
+#   "type": "https://trust-taller.dev/problems/unauthorized",
+#   "title": "Unauthorized",
+#   "status": 401,
+#   "detail": "Invalid credentials",
+#   "instance": "/api/auth/login"
+# }

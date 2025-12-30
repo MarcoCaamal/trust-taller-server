@@ -1,5 +1,6 @@
 import { User } from "@modules/users/models/user.model";
 import { Tenant } from "@modules/tenants/models/tentant.model";
+import { AppError, Result } from "@core/types";
 
 export interface RegisterWorkshopInput {
   name: string;
@@ -19,6 +20,7 @@ export interface RegisterWorkshopOutput {
 }
 
 export interface LoginInput {
+  tenantSlug: string;
   email: string;
   password: string;
 }
@@ -29,6 +31,6 @@ export interface LoginOutput {
 }
 
 export interface AuthServiceInterface {
-  registerWorkshop(input: RegisterWorkshopInput): Promise<RegisterWorkshopOutput>;
-  login(input: LoginInput): Promise<LoginOutput>;
+  registerWorkshop(input: RegisterWorkshopInput): Promise<Result<RegisterWorkshopOutput, AppError>>;
+  login(input: LoginInput): Promise<Result<LoginOutput, AppError>>;
 }

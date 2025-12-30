@@ -1,4 +1,4 @@
-import { PrismaClient } from "@core/database/generated/prisma/client";
+import { DbClient } from "@core/database/prisma";
 
 import { User, UserCreateInput } from "@modules/users/models/user.model";
 import { UserRepositoryInterface } from "./interfaces/user.repository.interface";
@@ -6,7 +6,7 @@ import { UserRepositoryInterface } from "./interfaces/user.repository.interface"
 
 export class PrismaUserRepository implements UserRepositoryInterface {
 
-  constructor(private prisma: PrismaClient) {}
+  constructor(private prisma: DbClient) {}
 
   async findAll(): Promise<Array<User>> {
     return this.prisma.user.findMany();

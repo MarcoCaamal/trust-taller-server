@@ -1,10 +1,10 @@
-import { PrismaClient } from "@core/database/generated/prisma/client";
+import { DbClient } from "@core/database/prisma";
 import { Tenant } from "@modules/tenants/models/tentant.model";
 import { TenantRepositoryInterface } from "./interfaces/tenant.repository.interface";
 
 export class PrismaTenantRepository implements TenantRepositoryInterface {
 
-  constructor(private prisma: PrismaClient) {}
+  constructor(private prisma: DbClient) {}
 
   async findAll(): Promise<Array<Tenant>> {
     return this.prisma.tenant.findMany();
