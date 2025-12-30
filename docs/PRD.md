@@ -61,6 +61,7 @@ Un flujo minimo centrado en evidencia + estatus + total reduce el costo operativ
 ### Taller
 - Admin del taller: configura taller, gestiona usuarios (si se incluye), crea y administra ordenes.
 - Mecanico/Operador: actualiza estatus y sube evidencia (segun permisos).
+- Recepcionista: captura ordenes, clientes y asignaciones (segun permisos).
 
 ### Cliente (sin cuenta)
 - Accede por enlace publico con token a la vista de su orden.
