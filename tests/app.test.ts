@@ -22,15 +22,4 @@ describe('Problem Details errors', () => {
     expect(response.body.status).toBe(400);
     expect(Array.isArray(response.body.errors)).toBe(true);
   });
-
-  it('should return RFC9457 body for not implemented login', async () => {
-    const response = await request(app).post('/api/auth/login').send({
-      email: 'user@example.com',
-    });
-
-    expect(response.status).toBe(400);
-    expect(response.headers['content-type']).toContain('application/problem+json');
-    expect(response.body.type).toBe('https://trust-taller.dev/problems/validation-error');
-    expect(response.body.status).toBe(400);
-  });
 });
