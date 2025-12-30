@@ -11,6 +11,7 @@ import { TenantRepositoryInterface } from "@modules/tenants/repositories/interfa
 import { JwtServiceInterface } from "./interfaces/jwt.service.interface";
 import { Prisma, PrismaClient } from "@core/database/generated/prisma/client";
 import { RepositoryFactory, Result, AppError, ok, err } from "@core/types";
+import { ROLE_NAMES } from "@core/auth/roles";
 
 class AppErrorException extends Error {
   constructor(public appError: AppError) {
@@ -82,6 +83,26 @@ export class AuthService implements AuthServiceInterface {
           lastName: input.user.lastName,
           passwordHash,
           isActive: true,
+        });
+
+        const adminRole = await tx.role.findFirst({
+          where: {
+            isSystem: true,
+            name: ROLE_NAMES.ADMIN,
+          },
+        });
+        if (!adminRole) {
+          throw new AppErrorException({
+            code: "INTERNAL_ERROR",
+            message: "System role ADMIN is missing",
+          });
+        }
+
+        await tx.userRole.create({
+          data: {
+            userId: user.id,
+            roleId: adminRole.id,
+          },
         });
 
         const token = this.jwtService.generateToken({
