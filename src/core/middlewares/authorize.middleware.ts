@@ -95,6 +95,7 @@ export const authorize = (permission: PermissionCode) => {
         return res.status(problem.status).type("application/problem+json").json(problem);
       }
 
+      req.auth = { userId, tenantId };
       return next();
     } catch (error) {
       return next(error);

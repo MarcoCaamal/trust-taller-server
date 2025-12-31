@@ -8,13 +8,15 @@ export class PrismaUserRepository implements UserRepositoryInterface {
 
   constructor(private prisma: DbClient) {}
 
-  async findAll(): Promise<Array<User>> {
-    return this.prisma.user.findMany();
+  async findAll(tenantId: number): Promise<Array<User>> {
+    return this.prisma.user.findMany({
+      where: { tenantId },
+    });
   }
 
-  async findById(id: number): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: { id },
+  async findById(tenantId: number, id: number): Promise<User | null> {
+    return this.prisma.user.findFirst({
+      where: { id, tenantId },
     });
   }
 
@@ -35,17 +37,21 @@ export class PrismaUserRepository implements UserRepositoryInterface {
     });
   }
 
-  async update(id: number, user: UserCreateInput): Promise<User | null> {
-    return this.prisma.user.update({
-      where: { id },
+  async update(tenantId: number, id: number, user: UserCreateInput): Promise<User | null> {
+    const result = await this.prisma.user.updateMany({
+      where: { id, tenantId },
       data: user,
+    });
+    if (result.count === 0) return null;
+    return this.prisma.user.findUnique({
+      where: { id },
     });
   }
 
-  async delete(id: number): Promise<boolean> {
-    await this.prisma.user.delete({
-      where: { id },
+  async delete(tenantId: number, id: number): Promise<boolean> {
+    const result = await this.prisma.user.deleteMany({
+      where: { id, tenantId },
     });
-    return true;
+    return result.count > 0;
   }
 }

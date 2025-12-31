@@ -41,10 +41,11 @@ export const errorHandler = (
 
   // Generic errors
   console.error('Unhandled error:', err);
+  const isProd = config.nodeEnv === 'production';
   const problem = createProblemDetails({
     status: 500,
     title: titleFromStatus(500),
-    detail: err.message || 'Internal server error',
+    detail: isProd ? 'Internal server error' : err.message || 'Internal server error',
     instance: req.originalUrl,
   });
   return res.status(problem.status).type('application/problem+json').json(problem);
