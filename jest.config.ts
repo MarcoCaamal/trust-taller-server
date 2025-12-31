@@ -26,6 +26,8 @@ const config: Config = {
   },
 
   setupFiles: ['<rootDir>/tests/setup-env.ts'],
+  globalSetup: '<rootDir>/tests/global-setup.ts',
+  globalTeardown: '<rootDir>/tests/global-teardown.ts',
 
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
 };

@@ -1,0 +1,15 @@
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: trust-taller-test-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: trust_taller_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d trust_taller_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

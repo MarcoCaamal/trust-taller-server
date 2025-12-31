@@ -69,7 +69,7 @@ export class AuthService implements AuthServiceInterface {
         const existingUser = await userRepository.findByEmail(tenant.id, input.user.email);
         if (existingUser) {
           throw new AppErrorException({
-            code: "TENANT_EMAIL_TAKEN",
+            code: "USER_EMAIL_TAKEN",
             message: "The email is already registered in this workshop",
           });
         }
