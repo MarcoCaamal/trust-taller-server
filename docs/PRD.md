@@ -81,6 +81,32 @@ Un flujo minimo centrado en evidencia + estatus + total reduce el costo operativ
    - Cambios posteriores implican nueva orden.
 6. Inventario basico de insumos (catalogo/autocompletar): el taller mantiene un catalogo de insumos/refacciones (nombre, unidad, precio sugerido) para seleccionarlos al capturar conceptos y que se autocompleten los campos. No es un inventario de stock y, por ahora, los conceptos no quedan ligados al catalogo (se guarda un "snapshot" del texto y precio en la orden).
 
+## 6.1 Decisiones tecnicas y operativas (MVP)
+
+1. Zona horaria: almacenar fechas en UTC y mostrar en la zona horaria del taller (default America/Mexico_City).
+2. Auth: JWT de acceso corto (15-30 min) + refresh token rotativo (7-30 dias) con revocacion.
+3. Permisos: Admin tiene acceso total dentro de su tenant; Usuario con permisos operativos limitados.
+4. Aislamiento multi-tenant: scoping obligatorio por `tenant_id` en repositorios/queries y contexto de tenant en middleware.
+5. Bloqueo de intentos invalidos: rate limit por IP/cuenta con backoff progresivo.
+6. Folio: secuencia por taller con prefijo (ej. TT-000123).
+7. Campos minimos de orden: cliente + vehiculo + fecha de recepcion + estatus inicial.
+8. Datos base editables: cliente, vehiculo, notas internas y fecha promesa.
+9. Concurrencia: versionado optimista con `updated_at` o `version`.
+10. Atrasada: comparar datetime completo contra fecha promesa.
+11. Moneda/precision: MXN, redondeo a 2 decimales; almacenar en centavos (int).
+12. Validaciones numericas: cantidad > 0, precio >= 0, subtotal >= 0.
+13. Aprobacion del cliente: rechazo desbloquea edicion y requiere nuevo envio.
+14. Catalogos: soft-delete; ocultar en autocompletar; snapshots nunca se borran.
+15. Indicador "Editado": cualquier cambio en nombre/descripcion/unidad/precio/cantidad.
+16. Limites de evidencias: por orden y por checklist (ej. 20 por orden, 5 por checklist).
+17. Imagenes: JPEG/PNG/WEBP, max 5 MB, compresion server-side.
+18. Almacenamiento de imagenes: S3-compatible con URLs firmadas y CDN opcional.
+19. Token publico: regenerable en cualquier momento; invalida token previo; no extiende expiracion.
+20. Visibilidad al cliente: ocultar notas internas, datos del usuario interno y metadatos operativos.
+21. Reportes: usar `created_at` para volumen y `delivered_at` para tiempos, en TZ del taller.
+22. Canceladas: excluir de promedios; mostrar apartado separado.
+23. Semana: ISO (lunes-domingo).
+
 ## 7. Alcance del MVP (features)
 
 ### 7.1 Onboarding / Workspace
