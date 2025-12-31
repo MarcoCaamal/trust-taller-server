@@ -5,10 +5,18 @@ import LoginSchema from "./schemas/login.schema";
 
 import { validate } from "@core/middlewares/validation.middleware";
 import { buildAuthController } from "./auth.container";
+import { rateLimit } from "@core/middlewares/rate-limit.middleware";
 
 const router = Router();
 
 const authController = buildAuthController();
+
+router.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+  })
+);
 
 router.post(
   '/register',

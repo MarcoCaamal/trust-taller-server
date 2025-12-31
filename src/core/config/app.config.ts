@@ -9,6 +9,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
   BASE_DOMAIN: z.string().min(1, "BASE_DOMAIN is required"),
   PROBLEM_DOCS_BASE_URL: z.string().min(1, "PROBLEM_DOCS_BASE_URL is required"),
+  CORS_ORIGINS: z.string().optional(),
 });
 
 const env = envSchema.parse(process.env);
@@ -20,6 +21,9 @@ const config: AppConfig = {
   jwtSecret: env.JWT_SECRET,
   baseDomain: env.BASE_DOMAIN,
   problemDocsBaseUrl: env.PROBLEM_DOCS_BASE_URL,
+  corsOrigins: env.CORS_ORIGINS
+    ? env.CORS_ORIGINS.split(",").map((origin) => origin.trim()).filter(Boolean)
+    : [],
 };
 
 export default config;

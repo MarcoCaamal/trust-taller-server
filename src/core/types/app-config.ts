@@ -5,4 +5,5 @@ export interface AppConfig {
   jwtSecret: string;
   baseDomain: string;
   problemDocsBaseUrl: string;
+  corsOrigins: string[];
 }
